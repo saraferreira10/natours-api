@@ -140,16 +140,18 @@ const deleteUser = (req, res) => {
 };
 
 // 5) ROUTES
-app.route(`${baseURL}/tours`).get(getAllTours).post(postTour);
-app
-  .route(`${baseURL}/tours/:id`)
-  .get(getTourById)
-  .patch(patchTour)
-  .delete(deleteTour);
 
-app.route(`${baseURL}/users`).get(getAllUsers).post(postUser);
+const tourRouter = express.Router();
+const userRouter = express.Router();
 
-app.route(`${baseURL}/users/:id`).get(getUserById).delete(deleteUser);
+tourRouter.route('/').get(getAllTours).post(postTour);
+tourRouter.route('/:id').get(getTourById).patch(patchTour).delete(deleteTour);
+
+userRouter.route('/').get(getAllUsers).post(postUser);
+userRouter.route('/:id').get(getUserById).delete(deleteUser);
+
+app.use(`${baseURL}/tours`, tourRouter);
+app.use(`${baseURL}/users`, userRouter);
 
 // 6) START SERVER
 app.listen(3000, '127.0.0.1', () => {
