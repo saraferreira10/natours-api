@@ -10,6 +10,21 @@ try {
   console.log(error);
 }
 
+exports.checkID = (req, res, next, val) => {
+  console.log(`ID: ${val}`);
+
+  const tour = tours.find((e) => e.id == req.params.id);
+  if (!tour)
+    return res
+      .status(404)
+      .json({
+        status: 'fail',
+        message: `Tour with id ${req.params.id} not found!`,
+      });
+
+  next();
+};
+
 exports.getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
@@ -21,12 +36,7 @@ exports.getAllTours = (req, res) => {
 };
 
 exports.getTourById = (req, res) => {
-  const { id } = req.params;
-  const tour = tours.find((e) => e.id == id);
-  if (!tour)
-    return res
-      .status(404)
-      .json({ status: 'fail', message: `Tour with id ${id} not found!` });
+  const tour = tours.find((e) => e.id == req.params.id);
   res.status(200).json({ status: 'success', data: { tour } });
 };
 
@@ -54,13 +64,6 @@ exports.patchTour = (req, res) => {
 };
 
 exports.deleteTour = (req, res) => {
-  const { id } = req.params;
-  const tour = tours.find((e) => e.id == id);
-
-  if (!tour)
-    return res.status(404).json({ status: 'fail', message: 'Invalid ID' });
-
-  tours = tours.filter((e) => e.id != id);
-
+  tours = tours.filter((e) => e.id != req.params.id);
   res.status(204).json({ status: 'success', data: null });
 };
