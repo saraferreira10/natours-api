@@ -1,46 +1,47 @@
-const fs = require('fs');
 const Tour = require('./../models/tourModel');
-
-// const filePath = `${__dirname}/../data/tours.json`;
-
-// let tours = [];
-
-// try {
-//   tours = JSON.parse(fs.readFileSync(filePath));
-// } catch (error) {
-//   console.log(error);
-// }
 
 let tours = Tour.find();
 
-// exports.checkID = (req, res, next, val) => {
-//   console.log(`ID: ${val}`);
-
-//   const tour = tours.find((e) => e.id == req.params.id);
-//   if (!tour)
-//     return res.status(404).json({
-//       status: 'fail',
-//       message: `Tour with id ${req.params.id} not found!`,
-//     });
-
-//   next();
-// };
-
-// exports.checkBody = (req, res, next) => {
-//   if (!req.body.name || !req.body.price)
-//     return res
-//       .status(400)
-//       .json({ status: 'fail', message: 'Name and price required' });
-//   next();
-// };
-
 exports.getAllTours = async (req, res) => {
   try {
-    const tours = await Tour.find();
+    const queryObj = { ...req.query };
+    const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    excludedFields.forEach((el) => delete queryObj[el]);
+    console.log(queryObj);
+
+    let query = Tour.find(queryObj);
+
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+      console.log(sortBy);
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('-createdAt');
+    }
+
+    if (req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+      query = query.select(fields);
+    }
+
+    query = query.select('-__v');
+
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 10;
+    const skip = (page - 1) * limit;
+
+    console.log('Page:', page);
+    console.log('Limit:', limit);
+    console.log('Skip:', skip);
+
+    query = query.skip(skip).limit(limit);
+
+    const tours = await query;
 
     res.status(200).json({
       status: 'success',
       name: req.name,
+      page,
       requestedAt: req.requestedAt,
       results: tours.length,
       data: { tours },

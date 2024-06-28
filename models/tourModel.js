@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const tourSchema = new mongoose.Schema({
+  idTest: Number,
   name: {
     type: String,
     required: [true, 'A tour must have a name'],
@@ -52,6 +53,7 @@ const tourSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now(),
+    // select: false,
   },
   startDates: [Date],
 });
