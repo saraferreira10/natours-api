@@ -33,4 +33,11 @@ app.use((req, res, next) => {
 app.use(`${baseURL}/tours`, tourRouter);
 app.use(`${baseURL}/users`, userRouter);
 
+app.all('*', (req, res) => {
+  res.status(404).json({
+    status: 'fail',
+    message: `Can't find ${req.url}`
+  })
+})
+
 module.exports = app;
